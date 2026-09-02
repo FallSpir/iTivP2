@@ -1,0 +1,90 @@
+# Business Metrics Dashboard API — тесты всех эндпоинтов
+
+@baseUrl = http://localhost:3000
+
+### GET / — статус сервера
+GET {{baseUrl}}/
+
+###
+
+### GET /metrics — список всех метрик
+GET {{baseUrl}}/metrics
+
+###
+
+### GET /metrics?category=finance — фильтр по категории (query string)
+GET {{baseUrl}}/metrics?category=finance
+
+###
+
+### GET /metrics/2 — одна метрика по ID (route param)
+GET {{baseUrl}}/metrics/2
+
+###
+
+### GET /metrics/999 — метрика не найдена → 404
+GET {{baseUrl}}/metrics/999
+
+###
+
+### GET /metrics/abc — невалидный ID → 400
+GET {{baseUrl}}/metrics/abc
+
+###
+
+### POST /metrics — создать новую метрику → 201
+POST {{baseUrl}}/metrics
+Content-Type: application/json
+
+{
+  "name": "Churn Rate",
+  "value": 2.1,
+  "unit": "%",
+  "category": "retention"
+}
+
+###
+
+### POST /metrics — невалидные данные (нет обязательных полей) → 400
+POST {{baseUrl}}/metrics
+Content-Type: application/json
+
+{
+  "name": "Broken Metric"
+}
+
+###
+
+### PUT /metrics/1 — полное обновление метрики → 200
+PUT {{baseUrl}}/metrics/1
+Content-Type: application/json
+
+{
+  "name": "Revenue",
+  "value": 130000,
+  "unit": "USD",
+  "category": "finance"
+}
+
+###
+
+### PUT /metrics/999 — метрика не найдена → 404
+PUT {{baseUrl}}/metrics/999
+Content-Type: application/json
+
+{
+  "name": "Ghost",
+  "value": 0,
+  "unit": "none",
+  "category": "unknown"
+}
+
+###
+
+### DELETE /metrics/5 — удалить метрику → 200
+DELETE {{baseUrl}}/metrics/5
+
+###
+
+### DELETE /metrics/5 — повторное удаление → 404
+DELETE {{baseUrl}}/metrics/5

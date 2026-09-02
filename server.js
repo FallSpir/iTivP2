@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { sequelize } = require('./models');
 const metricsRouter = require('./routes/metrics');
+const authRouter = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,9 +10,10 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'Business Metrics Dashboard API', version: '2.0.0' });
+  res.json({ status: 'ok', message: 'Business Metrics Dashboard API', version: '3.0.0' });
 });
 
+app.use('/auth', authRouter);
 app.use('/metrics', metricsRouter);
 
 app.use((req, res) => {

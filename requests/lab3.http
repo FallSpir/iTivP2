@@ -1,0 +1,80 @@
+@base = http://localhost:3000
+@token = PASTE_TOKEN_HERE
+
+### Регистрация обычного пользователя
+POST {{base}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "user1234"
+}
+
+###
+
+### Регистрация администратора
+POST {{base}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin1234",
+  "role": "admin"
+}
+
+###
+
+### Вход (скопируй token из ответа в @token выше)
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin1234"
+}
+
+###
+
+### Профиль (защищённый маршрут)
+GET {{base}}/auth/profile
+Authorization: Bearer {{token}}
+
+###
+
+### GET /metrics — доступен любому авторизованному
+GET {{base}}/metrics
+Authorization: Bearer {{token}}
+
+###
+
+### POST /metrics — только admin
+POST {{base}}/metrics
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "New Metric",
+  "value": 999,
+  "unit": "units",
+  "category": "test",
+  "trend": 1.5
+}
+
+###
+
+### GET /metrics без токена — должен вернуть 401
+GET {{base}}/metrics
+
+###
+
+### POST /metrics с токеном обычного пользователя — должен вернуть 403
+POST {{base}}/metrics
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Blocked Metric",
+  "value": 0,
+  "unit": "x",
+  "category": "test"
+}

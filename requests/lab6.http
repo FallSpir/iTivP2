@@ -1,0 +1,79 @@
+@base = http://localhost:3000
+@token = PASTE_TOKEN_HERE
+@mongoId = PASTE_MONGO_ID_HERE
+
+### Шаг 1: Логин — скопируй token из ответа и вставь в @token выше
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@dashboard.com",
+  "password": "admin123"
+}
+
+###
+
+### Скрин 3: POST /mongo/metrics — создать метрику
+POST {{base}}/mongo/metrics
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Выручка",
+  "value": 125000,
+  "unit": "BYN",
+  "category": "finance",
+  "trend": 5.2,
+  "tags": ["ключевая", "квартал-3"]
+}
+
+###
+
+### Скрин 4: GET /mongo/metrics — список всех метрик
+GET {{base}}/mongo/metrics
+Authorization: Bearer {{token}}
+
+###
+
+### Скрин 5: PUT /mongo/metrics/:id — обновить (вставь _id из скрина 3 в @mongoId)
+PUT {{base}}/mongo/metrics/{{mongoId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Выручка Q3",
+  "value": 132000,
+  "unit": "BYN",
+  "category": "finance",
+  "trend": 6.5,
+  "tags": ["ключевая", "квартал-3", "обновлено"]
+}
+
+###
+
+### Доп: добавить точку в историю значений
+POST {{base}}/mongo/metrics/{{mongoId}}/history
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "value": 128000,
+  "date": "2026-08-01T00:00:00.000Z"
+}
+
+###
+
+### Доп: добавить тег
+POST {{base}}/mongo/metrics/{{mongoId}}/tags
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "tag": "приоритет"
+}
+
+###
+
+### Скрин 6: DELETE /mongo/metrics/:id — удалить метрику
+DELETE {{base}}/mongo/metrics/{{mongoId}}
+Authorization: Bearer {{token}}

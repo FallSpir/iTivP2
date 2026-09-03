@@ -2,7 +2,6 @@
 @token = PASTE_TOKEN_HERE
 @mongoId = PASTE_MONGO_ID_HERE
 
-### Шаг 1: Логин — скопируй token из ответа и вставь в @token выше
 POST {{base}}/auth/login
 Content-Type: application/json
 
@@ -13,7 +12,6 @@ Content-Type: application/json
 
 ###
 
-### Скрин 3: POST /mongo/metrics — создать метрику
 POST {{base}}/mongo/metrics
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -29,13 +27,11 @@ Authorization: Bearer {{token}}
 
 ###
 
-### Скрин 4: GET /mongo/metrics — список всех метрик
 GET {{base}}/mongo/metrics
 Authorization: Bearer {{token}}
 
 ###
 
-### Скрин 5: PUT /mongo/metrics/:id — обновить (вставь _id из скрина 3 в @mongoId)
 PUT {{base}}/mongo/metrics/{{mongoId}}
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -74,6 +70,5 @@ Authorization: Bearer {{token}}
 
 ###
 
-### Скрин 6: DELETE /mongo/metrics/:id — удалить метрику
 DELETE {{base}}/mongo/metrics/{{mongoId}}
 Authorization: Bearer {{token}}

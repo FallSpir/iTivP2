@@ -1,31 +1,38 @@
 import { useState, useEffect } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
 import MetricCard from './MetricCard';
 import MetricForm from './MetricForm';
-
-const INITIAL_METRICS = [
-  { id: 1, name: 'Revenue', value: 125000, unit: 'USD', category: 'finance', trend: 8.3 },
-  { id: 2, name: 'DAU', value: 4320, unit: 'users', category: 'engagement', trend: 2.1 },
-  { id: 3, name: 'Conversion Rate', value: 3.7, unit: '%', category: 'sales', trend: -0.5 },
-  { id: 4, name: 'Avg Order Value', value: 89.5, unit: 'USD', category: 'finance', trend: 4.2 },
-  { id: 5, name: 'Support Tickets', value: 142, unit: 'tickets', category: 'support', trend: -12 },
-];
+import * as api from '../api';
 
 const EMPTY_FORM = { name: '', value: '', unit: '', category: 'finance', trend: '' };
 
 export default function MetricList() {
-  const [metrics, setMetrics] = useLocalStorage('metrics', INITIAL_METRICS);
+  const [metrics, setMetrics] = useState([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
-  const [filterCategory, setFilterCategory] = useLocalStorage('filterCategory', 'all');
-  const [sortBy, setSortBy] = useLocalStorage('sortBy', 'name');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('name');
   const [loading, setLoading] = useState(true);
-  const [lastSaved, setLastSaved] = useState(null);
+  const [error, setError] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  // Имитация загрузки при старте
+  // Загрузка с сервера + AbortController (отмена при размонтировании)
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+
+    const delay = new Promise(r => setTimeout(r, 800));
+
+    Promise.all([api.fetchMetrics(controller.signal), delay])
+      .then(([res]) => setMetrics(res.data))
+      .catch(err => {
+        if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
+          setError('Не удалось загрузить метрики. Проверьте соединение с сервером.');
+        }
+      })
+      .finally(() => setLoading(false));
+
+    return () => controller.abort();
   }, []);
 
   // Заголовок страницы
@@ -33,36 +40,56 @@ export default function MetricList() {
     document.title = `Метрики (${metrics.length}) — Dashboard`;
   }, [metrics]);
 
-  // Автосохранение с debounce
-  useEffect(() => {
-    if (loading) return;
-    const timer = setTimeout(() => {
-      setLastSaved(new Date().toLocaleTimeString());
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [metrics, loading]);
-
   function handleChange(field, value) {
     setForm(prev => ({ ...prev, [field]: value }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    const metric = {
-      id: editingId ?? Date.now(),
+    const payload = {
       name: form.name,
       value: parseFloat(form.value),
       unit: form.unit,
       category: form.category,
       trend: form.trend !== '' ? parseFloat(form.trend) : 0,
     };
+
     if (editingId) {
-      setMetrics(prev => prev.map(m => m.id === editingId ? metric : m));
+      // Оптимистичное обновление
+      const prev = metrics.find(m => m.id === editingId);
+      setMetrics(ms => ms.map(m => m.id === editingId ? { ...m, ...payload } : m));
       setEditingId(null);
+      setForm(EMPTY_FORM);
+      setSaving(true);
+      try {
+        const res = await api.updateMetric(editingId, payload);
+        setMetrics(ms => ms.map(m => m.id === editingId ? res.data : m));
+      } catch {
+        // Откат при ошибке
+        setMetrics(ms => ms.map(m => m.id === editingId ? prev : m));
+        setError('Ошибка при обновлении метрики');
+      } finally {
+        setSaving(false);
+      }
     } else {
-      setMetrics(prev => [...prev, metric]);
+      // Оптимистичное добавление с временным ID
+      const tempId = Date.now();
+      const optimistic = { id: tempId, ...payload };
+      setMetrics(ms => [...ms, optimistic]);
+      setForm(EMPTY_FORM);
+      setSaving(true);
+      try {
+        const res = await api.createMetric(payload);
+        // Заменяем временный ID на реальный из ответа сервера
+        setMetrics(ms => ms.map(m => m.id === tempId ? res.data : m));
+      } catch {
+        // Откат при ошибке
+        setMetrics(ms => ms.filter(m => m.id !== tempId));
+        setError('Ошибка при добавлении метрики');
+      } finally {
+        setSaving(false);
+      }
     }
-    setForm(EMPTY_FORM);
   }
 
   function handleEdit(metric) {
@@ -76,11 +103,20 @@ export default function MetricList() {
     });
   }
 
-  function handleDelete(id) {
-    setMetrics(prev => prev.filter(m => m.id !== id));
+  async function handleDelete(id) {
+    // Оптимистичное удаление
+    const removed = metrics.find(m => m.id === id);
+    setMetrics(ms => ms.filter(m => m.id !== id));
     if (editingId === id) {
       setEditingId(null);
       setForm(EMPTY_FORM);
+    }
+    try {
+      await api.deleteMetric(id);
+    } catch {
+      // Откат при ошибке
+      setMetrics(ms => [...ms, removed].sort((a, b) => a.id - b.id));
+      setError('Ошибка при удалении метрики');
     }
   }
 
@@ -101,19 +137,26 @@ export default function MetricList() {
     });
 
   if (loading) {
-    return <div className="loading">Загрузка метрик...</div>;
+    return <div className="loading">Загрузка метрик с сервера...</div>;
   }
 
   return (
     <div className="metric-list-container">
       <h1>Business Metrics Dashboard</h1>
 
+      {error && (
+        <div className="error-bar">
+          {error}
+          <button onClick={() => setError(null)}>✕</button>
+        </div>
+      )}
+
       <div className="stats-bar">
         <span>Всего метрик: <strong>{metrics.length}</strong></span>
         <span>Показано: <strong>{filtered.length}</strong></span>
         <span>Растут: <strong>{metrics.filter(m => m.trend > 0).length}</strong></span>
         <span>Падают: <strong>{metrics.filter(m => m.trend < 0).length}</strong></span>
-        {lastSaved && <span className="saved">Сохранено в {lastSaved}</span>}
+        {saving && <span className="saved">Сохранение...</span>}
       </div>
 
       <MetricForm

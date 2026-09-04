@@ -1,4 +1,5 @@
 require('dotenv').config();
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -6,15 +7,19 @@ const { sequelize } = require('./models');
 const metricsRouter = require('./routes/metrics');
 const authRouter = require('./routes/auth');
 const mongoMetricsRouter = require('./routes/mongoMetrics');
+const socketIO = require('./socket');
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
+
+socketIO.init(server);
 
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'Business Metrics Dashboard API', version: '4.0.0' });
+  res.json({ status: 'ok', message: 'Business Metrics Dashboard API', version: '5.0.0' });
 });
 
 app.use('/auth', authRouter);
@@ -37,7 +42,7 @@ mongoose.connect(process.env.MONGO_URI)
 sequelize.authenticate()
   .then(() => {
     console.log('PostgreSQL connected');
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
   })

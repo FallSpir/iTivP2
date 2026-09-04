@@ -1,4 +1,5 @@
 const { Metric } = require('../models');
+const { getIO } = require('../socket');
 
 const REQUIRED_FIELDS = ['name', 'value', 'unit', 'category'];
 
@@ -34,6 +35,8 @@ async function createMetric(req, res, next) {
     if (error) return res.status(400).json({ error });
     const metric = await Metric.create(req.body);
     res.status(201).json(metric);
+    getIO().emit('metric_created', metric);
+    getIO().to(metric.category).emit('metric_created', metric);
   } catch (err) { next(err); }
 }
 
@@ -47,6 +50,8 @@ async function updateMetric(req, res, next) {
     if (!metric) return res.status(404).json({ error: `Metric with id ${id} not found` });
     await metric.update(req.body);
     res.json(metric);
+    getIO().emit('metric_updated', metric);
+    getIO().to(metric.category).emit('metric_updated', metric);
   } catch (err) { next(err); }
 }
 
@@ -58,6 +63,8 @@ async function deleteMetric(req, res, next) {
     if (!metric) return res.status(404).json({ error: `Metric with id ${id} not found` });
     await metric.destroy();
     res.status(200).json({ message: `Metric ${id} deleted successfully` });
+    getIO().emit('metric_deleted', { id, name: metric.name, category: metric.category });
+    getIO().to(metric.category).emit('metric_deleted', { id, name: metric.name });
   } catch (err) { next(err); }
 }
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import MetricList from './components/MetricList';
 import Login from './components/Login';
+import LiveFeed from './components/LiveFeed';
 import './App.css';
 
 export default function App() {
@@ -16,11 +17,18 @@ export default function App() {
   }
 
   return (
-    <div>
+    <div className="app-layout">
       <div className="top-bar">
         <button className="logout-btn" onClick={handleLogout}>Выйти</button>
       </div>
-      <MetricList />
+      <div className="app-body">
+        <div className="app-main">
+          <MetricList />
+        </div>
+        <div className="app-sidebar">
+          <LiveFeed />
+        </div>
+      </div>
     </div>
   );
 }

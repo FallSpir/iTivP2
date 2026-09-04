@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import MetricCard from './MetricCard';
 import MetricForm from './MetricForm';
 import * as api from '../api';
+import socket from '../socket';
 
 const EMPTY_FORM = { name: '', value: '', unit: '', category: 'finance', trend: '' };
 
@@ -39,6 +40,18 @@ export default function MetricList() {
   useEffect(() => {
     document.title = `Метрики (${metrics.length}) — Dashboard`;
   }, [metrics]);
+
+  // Реальное время: авто-обновление списка через WebSocket
+  useEffect(() => {
+    socket.on('metric_created', (m) => setMetrics(prev => [...prev, m]));
+    socket.on('metric_updated', (m) => setMetrics(prev => prev.map(x => x.id === m.id ? m : x)));
+    socket.on('metric_deleted', ({ id }) => setMetrics(prev => prev.filter(x => x.id !== id)));
+    return () => {
+      socket.off('metric_created');
+      socket.off('metric_updated');
+      socket.off('metric_deleted');
+    };
+  }, []);
 
   function handleChange(field, value) {
     setForm(prev => ({ ...prev, [field]: value }));

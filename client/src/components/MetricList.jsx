@@ -43,7 +43,7 @@ export default function MetricList() {
 
   // Реальное время: авто-обновление списка через WebSocket
   useEffect(() => {
-    socket.on('metric_created', (m) => setMetrics(prev => [...prev, m]));
+    socket.on('metric_created', (m) => setMetrics(prev => prev.some(x => x.id === m.id) ? prev : [...prev, m]));
     socket.on('metric_updated', (m) => setMetrics(prev => prev.map(x => x.id === m.id ? m : x)));
     socket.on('metric_deleted', ({ id }) => setMetrics(prev => prev.filter(x => x.id !== id)));
     return () => {

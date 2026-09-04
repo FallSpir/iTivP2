@@ -4,7 +4,7 @@ let io;
 
 function init(httpServer) {
   io = new Server(httpServer, {
-    cors: { origin: 'http://localhost:5173', credentials: true },
+    cors: { origin: ['http://localhost:5173', 'http://localhost', 'http://localhost:80'], credentials: true },
   });
 
   io.on('connection', (socket) => {

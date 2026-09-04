@@ -5,7 +5,7 @@ module.exports = {
     username: 'metrics_user',
     password: 'metrics123',
     database: 'metrics_dashboard',
-    host: '127.0.0.1',
+    host: process.env.DB_HOST || '127.0.0.1',
     dialect: 'postgres',
   },
 };

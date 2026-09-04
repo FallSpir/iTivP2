@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 
 socketIO.init(server);
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost', 'http://localhost:80'], credentials: true }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -39,9 +39,9 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err.message));
 
-sequelize.authenticate()
+sequelize.sync({ force: false })
   .then(() => {
-    console.log('PostgreSQL connected');
+    console.log('PostgreSQL connected and synced');
     server.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });

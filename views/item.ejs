@@ -1,0 +1,42 @@
+<%- include('partials/header') %>
+
+<div class="breadcrumb">
+  <a href="/">← Все метрики</a>
+</div>
+
+<div class="item-card">
+  <div class="item-header">
+    <span class="item-category"><%= metric.category %></span>
+    <span class="item-id">#<%= metric.id %></span>
+  </div>
+
+  <h1 class="item-name"><%= metric.name %></h1>
+
+  <div class="item-main">
+    <div class="item-value-block">
+      <span class="item-value"><%= metric.value.toLocaleString('ru-RU') %></span>
+      <span class="item-unit"><%= metric.unit %></span>
+    </div>
+    <div class="item-trend <%= metric.trend > 0 ? 'trend-up' : metric.trend < 0 ? 'trend-down' : 'trend-neutral' %>">
+      <%= metric.trend > 0 ? '▲' : metric.trend < 0 ? '▼' : '—' %>
+      <%= Math.abs(metric.trend) %>%
+    </div>
+  </div>
+
+  <div class="item-meta">
+    <div class="meta-row">
+      <span class="meta-label">Категория</span>
+      <span class="meta-value"><%= metric.category %></span>
+    </div>
+    <div class="meta-row">
+      <span class="meta-label">Единица измерения</span>
+      <span class="meta-value"><%= metric.unit %></span>
+    </div>
+    <div class="meta-row">
+      <span class="meta-label">Добавлено</span>
+      <span class="meta-value"><%= new Date(metric.createdAt).toLocaleString('ru-RU') %></span>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

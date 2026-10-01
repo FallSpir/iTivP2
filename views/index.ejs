@@ -1,0 +1,61 @@
+<%- include('partials/header') %>
+
+<div class="page-header">
+  <h1>Business Metrics Dashboard</h1>
+</div>
+
+<div class="stats-bar">
+  <span>Всего: <strong><%= metrics.length %></strong></span>
+  <span>Растут: <strong class="green"><%= metrics.filter(m => m.trend > 0).length %></strong></span>
+  <span>Падают: <strong class="red"><%= metrics.filter(m => m.trend < 0).length %></strong></span>
+  <span>Стабильны: <strong><%= metrics.filter(m => m.trend === 0).length %></strong></span>
+</div>
+
+<div class="controls">
+  <div class="filter-group">
+    <label>Категория:</label>
+    <a href="/?sort=<%= sort %>" class="filter-btn <%= activeCategory === 'All' ? 'active' : '' %>">All</a>
+    <% categories.forEach(cat => { %>
+      <a href="/?category=<%= cat %>&sort=<%= sort %>" class="filter-btn <%= activeCategory === cat ? 'active' : '' %>"><%= cat %></a>
+    <% }) %>
+  </div>
+  <div class="sort-group">
+    <label>Сортировка:</label>
+    <select onchange="location.href='/?category=<%= activeCategory === 'All' ? '' : activeCategory %>&sort='+this.value">
+      <option value="" <%= sort === '' ? 'selected' : '' %>>По дате</option>
+      <option value="name" <%= sort === 'name' ? 'selected' : '' %>>По названию</option>
+      <option value="value" <%= sort === 'value' ? 'selected' : '' %>>По значению</option>
+      <option value="trend" <%= sort === 'trend' ? 'selected' : '' %>>По тренду</option>
+    </select>
+  </div>
+</div>
+
+<% if (metrics.length === 0) { %>
+  <div class="empty">Метрики не найдены. <a href="/add">Добавить →</a></div>
+<% } else { %>
+  <div class="metrics-grid">
+    <% metrics.forEach(metric => { %>
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-name"><%= metric.name %></span>
+          <span class="metric-category"><%= metric.category %></span>
+        </div>
+        <div class="metric-value">
+          <%= metric.value.toLocaleString('ru-RU') %>
+          <span class="metric-unit"><%= metric.unit %></span>
+        </div>
+        <% if (metric.trend !== null) { %>
+          <div class="metric-trend" style="color: <%= metric.trend > 0 ? '#66bb6a' : metric.trend < 0 ? '#f44336' : '#888' %>">
+            <%= metric.trend > 0 ? '+' : '' %><%= metric.trend %>%
+          </div>
+        <% } %>
+        <div class="metric-actions">
+          <a href="/item/<%= metric.id %>" class="btn-action">Подробнее</a>
+          <a href="/delete/<%= metric.id %>" class="btn-action delete" onclick="return confirm('Удалить метрику?')">Удалить</a>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>

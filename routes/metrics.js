@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Metric = require('../models/metric');
+const Log = require('../models/log');
 
 const CATEGORIES = ['Finance', 'Marketing', 'Sales', 'Operations', 'HR'];
 
-router.get('/', async (req, res, next) => {
+router.get('/', async (req, res, next) => {                                    //18(router.get('/', checkAuth, checkRole, async (req, res, next) => { ... });)
   try {
     const { category, sort } = req.query;
     const where = category && category !== 'All' ? { category } : {};
@@ -47,6 +48,15 @@ router.get('/item/:id', async (req, res, next) => {
     const metric = await Metric.findByPk(req.params.id);
     if (!metric) return res.status(404).render('404', { url: req.url, user: req.user });
     res.render('item', { metric, user: req.user });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/logs', async (req, res, next) => {
+  try {
+    const logs = await Log.findAll({ order: [['createdAt', 'DESC']], limit: 100 });
+    res.render('logs', { logs, user: req.user });
   } catch (err) {
     next(err);
   }

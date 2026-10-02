@@ -313,3 +313,15 @@ select option { background: #1a1d27; }
   font-size: 13px;
   color: #555;
 }
+
+/* Logs */
+.logs-table-wrap { overflow-x: auto; }
+.logs-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.logs-table th { background: #1a1d27; color: #aaa; font-weight: 600; padding: 10px 14px; text-align: left; border-bottom: 1px solid #2e3245; }
+.logs-table td { padding: 8px 14px; border-bottom: 1px solid #1e2130; color: #e0e0e0; }
+.logs-table tr:hover td { background: #1a1d27; }
+
+.method-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+.method-get  { background: #1b3a2a; color: #66bb6a; }
+.method-post { background: #2a2a1b; color: #ffd54f; }
+.method-delete { background: #3a1b1b; color: #ef5350; }

@@ -1,0 +1,33 @@
+<%- include('partials/header') %>
+
+<div class="page-header">
+  <h1>Журнал запросов</h1>
+</div>
+
+<div class="logs-table-wrap">
+  <table class="logs-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Метод</th>
+        <th>URL</th>
+        <th>Время</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% logs.forEach((log, i) => { %>
+      <tr>
+        <td><%= log.id %></td>
+        <td><span class="method-badge method-<%= log.method.toLowerCase() %>"><%= log.method %></span></td>
+        <td><%= log.url %></td>
+        <td><%= new Date(log.createdAt).toLocaleString('ru-RU') %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% if (logs.length === 0) { %>
+    <div class="empty">Логов пока нет.</div>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

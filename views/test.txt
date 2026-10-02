@@ -1,0 +1,27 @@
+//views/index.ejs
+<a href="/edit/<%= metric.id %>" class="btn-action">Изменить</a>
+
+
+//routes/metrics.js = перед module.exports = router;
+router.get('/edit/:id', async (req, res, next) => {
+  try {
+    const metric = await Metric.findByPk(req.params.id);
+    if (!metric) return res.status(404).render('404', { url: req.url, user: req.user });
+    res.render('edit', { metric, user: req.user });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/edit/:id', async (req, res, next) => {
+  try {
+    const { name, value, unit, category, trend } = req.body;
+    await Metric.update(
+      { name, value: parseFloat(value), unit, category, trend: parseFloat(trend) || 0 },
+      { where: { id: req.params.id } }
+    );
+    res.redirect('/');
+  } catch (err) {
+    next(err);
+  }
+});

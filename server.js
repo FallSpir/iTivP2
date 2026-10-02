@@ -8,6 +8,7 @@ const { notFound, serverError } = require('./middleware/errorHandler');
 const metricsRouter = require('./routes/metrics');
 
 require('./models/metric');
+require('./models/log');
 
 const app = express();
 
@@ -17,6 +18,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+/* 17
+app.use((req, res, next) => {
+  req.body.name = req.body.name.trim();
+  next();
+});
+ */
 app.use(logger);
 app.use(auth);
 

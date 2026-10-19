@@ -50,8 +50,8 @@
           </div>
         <% } %>
         <div class="metric-actions">
-          <a href="/item/<%= metric.id %>" class="btn-action">Подробнее</a>
-          <a href="/delete/<%= metric.id %>" class="btn-action delete" onclick="return confirm('Удалить метрику?')">Удалить</a>
+          <a href="/item/<%= metric.id %><%= authSuffix %>" class="btn-action">Подробнее</a>
+          <a href="/delete/<%= metric.id %><%= authSuffix %>" class="btn-action delete" onclick="return confirm('Удалить метрику?')">Удалить</a>
         </div>
       </div>
     <% }) %>

@@ -7,18 +7,27 @@
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
+  <% const _as = user.name === 'Администратор' ? '?auth=1' : ''; %>
   <header class="site-header">
     <div class="container">
-      <a href="/" class="logo">MetricsHub</a>
+      <a href="/<%= _as %>" class="logo">MetricsHub</a>
       <nav>
-        <a href="/">Метрики</a>
-        <a href="/add">Добавить</a>
-        <a href="/logs">Журнал</a>
+        <a href="/<%= _as %>">Метрики</a>
+        <a href="/add<%= _as %>">Добавить</a>
+        <a href="/logs<%= _as %>">Журнал</a>
       </nav>
-      <div class="user-badge">
+      <div class="user-badge user-toggle" title="Переключить роль">
         <span class="user-icon">👤</span>
         <span><%= user.name %></span>
+        <span class="toggle-hint"><%= user.name === 'Администратор' ? '→ Гость' : '→ Админ' %></span>
       </div>
     </div>
   </header>
+  <script>
+    document.querySelector('.user-toggle').addEventListener('click', function () {
+      const isAdmin = '<%= user.name %>' === 'Администратор';
+      const path = window.location.pathname;
+      window.location.href = isAdmin ? path : path + '?auth=1';
+    });
+  </script>
   <main class="container">

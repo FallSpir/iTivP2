@@ -32,15 +32,16 @@ function validateMetricInput({ name, value, unit, category, trend }) {
 
 router.get('/', async (req, res, next) => {                                    //18(router.get('/', checkAuth, checkRole, async (req, res, next) => { ... });)
   try {
-    const { category, sort } = req.query;
+    const { category, sort, dir } = req.query;
     const where = category && category !== 'All' ? { category } : {};
-    const order = sort === 'value' ? [['value', 'DESC']]
-      : sort === 'trend' ? [['trend', 'DESC']]
-      : sort === 'name' ? [['name', 'ASC']]
-      : [['createdAt', 'DESC']];
+    const D = dir === 'asc' ? 'ASC' : 'DESC';
+    const order = sort === 'value' ? [['value', D]]
+      : sort === 'trend' ? [['trend', D]]
+      : sort === 'name' ? [['name', D]]
+      : [['createdAt', D]];
     const metrics = await Metric.findAll({ where, order });
     const authSuffix = req.query.auth === '1' ? '?auth=1' : '';
-    res.render('index', { metrics, user: req.user, categories: CATEGORIES, activeCategory: category || 'All', sort: sort || '', authSuffix });
+    res.render('index', { metrics, user: req.user, categories: CATEGORIES, activeCategory: category || 'All', sort: sort || '', dir: dir || 'desc', authSuffix });
   } catch (err) {
     next(err);
   }

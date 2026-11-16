@@ -21,12 +21,13 @@
   </div>
   <div class="sort-group">
     <label>Сортировка:</label>
-    <select onchange="location.href='/?category=<%= activeCategory === 'All' ? '' : activeCategory %>&sort='+this.value">
+    <select onchange="location.href='/?category=<%= activeCategory === 'All' ? '' : activeCategory %>&sort='+this.value+'&dir=<%= dir %><%= authSuffix ? '&auth=1' : '' %>'">
       <option value="" <%= sort === '' ? 'selected' : '' %>>По дате</option>
       <option value="name" <%= sort === 'name' ? 'selected' : '' %>>По названию</option>
       <option value="value" <%= sort === 'value' ? 'selected' : '' %>>По значению</option>
       <option value="trend" <%= sort === 'trend' ? 'selected' : '' %>>По тренду</option>
     </select>
+    <a href="/?category=<%= activeCategory === 'All' ? '' : activeCategory %>&sort=<%= sort %>&dir=<%= dir === 'desc' ? 'asc' : 'desc' %><%= authSuffix ? '&auth=1' : '' %>" class="sort-dir-btn" title="<%= dir === 'desc' ? 'По убыванию' : 'По возрастанию' %>"><%= dir === 'desc' ? '↓' : '↑' %></a>
   </div>
 </div>
 

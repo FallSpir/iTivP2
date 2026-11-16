@@ -140,6 +140,22 @@ main.container { padding-top: 28px; padding-bottom: 48px; flex: 1; }
   cursor: pointer;
 }
 
+.sort-dir-btn {
+  padding: 5px 9px;
+  border-radius: 7px;
+  border: 1px solid #2e3245;
+  background: #1a1d27;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.sort-dir-btn:hover {
+  border-color: #66bb6a;
+  color: #66bb6a;
+}
+
 /* Grid */
 .metrics-grid {
   display: grid;

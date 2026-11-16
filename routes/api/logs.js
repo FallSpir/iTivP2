@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Log = require('../../models/log');
 
+function parseId(raw) {
+  const n = parseInt(raw, 10);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
 /**
  * @swagger
  * tags:
@@ -67,7 +72,9 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
   try {
-    const log = await Log.findByPk(req.params.id);
+    const id = parseId(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Invalid id' });
+    const log = await Log.findByPk(id);
     if (!log) return res.status(404).json({ error: 'Log entry not found' });
     res.json(log);
   } catch (err) {
@@ -97,7 +104,9 @@ router.get('/:id', async (req, res) => {
  */
 router.delete('/:id', async (req, res) => {
   try {
-    const log = await Log.findByPk(req.params.id);
+    const id = parseId(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Invalid id' });
+    const log = await Log.findByPk(id);
     if (!log) return res.status(404).json({ error: 'Log entry not found' });
     await log.destroy();
     res.status(204).send();

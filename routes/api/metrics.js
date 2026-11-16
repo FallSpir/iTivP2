@@ -4,6 +4,17 @@ const Metric = require('../../models/metric');
 
 const CATEGORIES = ['Finance', 'Marketing', 'Sales', 'Operations', 'HR'];
 
+function parseId(raw) {
+  const n = parseInt(raw, 10);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+function parsePagination(rawPage, rawLimit) {
+  const page  = Math.max(1, parseInt(rawPage,  10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(rawLimit, 10) || 10));
+  return { page, limit };
+}
+
 function validateMetric({ name, value, unit, category, trend }) {
   const errors = [];
   const cleanName = (typeof name === 'string' ? name : '').trim();
@@ -71,16 +82,17 @@ function validateMetric({ name, value, unit, category, trend }) {
  */
 router.get('/', async (req, res) => {
   try {
-    const { category, sort, dir, page = 1, limit = 10 } = req.query;
+    const { category, sort, dir } = req.query;
+    const { page, limit } = parsePagination(req.query.page, req.query.limit);
     const where = category && CATEGORIES.includes(category) ? { category } : {};
     const D = dir === 'asc' ? 'ASC' : 'DESC';
     const order = sort === 'value' ? [['value', D]]
       : sort === 'trend' ? [['trend', D]]
       : sort === 'name'  ? [['name', D]]
       : [['createdAt', D]];
-    const offset = (parseInt(page) - 1) * parseInt(limit);
-    const { count, rows } = await Metric.findAndCountAll({ where, order, limit: parseInt(limit), offset });
-    res.json({ data: rows, total: count, page: parseInt(page), pages: Math.ceil(count / parseInt(limit)) });
+    const offset = (page - 1) * limit;
+    const { count, rows } = await Metric.findAndCountAll({ where, order, limit, offset });
+    res.json({ data: rows, total: count, page, pages: Math.ceil(count / limit) });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -111,7 +123,9 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
   try {
-    const metric = await Metric.findByPk(req.params.id);
+    const id = parseId(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Invalid id' });
+    const metric = await Metric.findByPk(id);
     if (!metric) return res.status(404).json({ error: 'Metric not found' });
     res.json(metric);
   } catch (err) {
@@ -191,7 +205,9 @@ router.post('/', async (req, res) => {
  */
 router.put('/:id', async (req, res) => {
   try {
-    const metric = await Metric.findByPk(req.params.id);
+    const id = parseId(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Invalid id' });
+    const metric = await Metric.findByPk(id);
     if (!metric) return res.status(404).json({ error: 'Metric not found' });
     const { errors, cleanName, parsedValue, cleanUnit, parsedTrend } = validateMetric(req.body);
     if (errors.length) return res.status(400).json({ errors });
@@ -244,7 +260,9 @@ router.put('/:id', async (req, res) => {
  */
 router.patch('/:id', async (req, res) => {
   try {
-    const metric = await Metric.findByPk(req.params.id);
+    const id = parseId(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Invalid id' });
+    const metric = await Metric.findByPk(id);
     if (!metric) return res.status(404).json({ error: 'Metric not found' });
     const updates = {};
     const errors = [];
@@ -304,7 +322,9 @@ router.patch('/:id', async (req, res) => {
  */
 router.delete('/:id', async (req, res) => {
   try {
-    const metric = await Metric.findByPk(req.params.id);
+    const id = parseId(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Invalid id' });
+    const metric = await Metric.findByPk(id);
     if (!metric) return res.status(404).json({ error: 'Metric not found' });
     await metric.destroy();
     res.status(204).send();

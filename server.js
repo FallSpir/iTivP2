@@ -1,11 +1,16 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
 const sequelize = require('./config/db');
 const logger = require('./middleware/logger');
 const auth = require('./middleware/auth');
 const { notFound, serverError } = require('./middleware/errorHandler');
 const metricsRouter = require('./routes/metrics');
+const apiMetricsRouter = require('./routes/api/metrics');
+const apiCategoriesRouter = require('./routes/api/categories');
+const apiLogsRouter = require('./routes/api/logs');
 
 require('./models/metric');
 require('./models/log');
@@ -18,6 +23,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 /* 17
 app.use((req, res, next) => {
   req.body.name = req.body.name.trim();
@@ -26,6 +33,10 @@ app.use((req, res, next) => {
  */
 app.use(logger);
 app.use(auth);
+
+app.use('/api/metrics', apiMetricsRouter);
+app.use('/api/categories', apiCategoriesRouter);
+app.use('/api/logs', apiLogsRouter);
 
 app.use('/', metricsRouter);
 

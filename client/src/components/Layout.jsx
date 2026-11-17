@@ -1,8 +1,10 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Layout() {
   const { isAuth, username, logout } = useAuth();
+  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -23,6 +25,9 @@ export default function Layout() {
               <NavLink to="/dashboard"   className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Кабинет</NavLink>
             )}
           </nav>
+          <button className="btn btn-ghost btn-sm theme-btn" onClick={toggle}>
+            {theme === 'dark' ? 'Светлая' : 'Тёмная'}
+          </button>
           <div className="header-auth">
             {isAuth ? (
               <>

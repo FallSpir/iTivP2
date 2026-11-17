@@ -36,8 +36,8 @@ export default function Login() {
     setLoading(true);
     // Имитация проверки: admin / admin123
     await new Promise(r => setTimeout(r, 300));
-    if (form.username.trim() === 'admin' && form.password === 'admin123') {
-      login(form.username.trim());
+    const ok = login(form.username.trim(), form.password);
+    if (ok) {
       navigate(from, { replace: true });
     } else {
       setApiError('Неверное имя пользователя или пароль.');
@@ -56,7 +56,7 @@ export default function Login() {
     <div className="page-auth">
       <div className="auth-card">
         <h1 className="auth-title">Вход в систему</h1>
-        <p className="auth-hint">Логин: <code>admin</code> · Пароль: <code>admin123</code></p>
+        <p className="auth-hint"><code>admin</code> / <code>admin123</code> или <code>user</code> / <code>user123</code></p>
 
         {apiError && <div className="alert alert-error">{apiError}</div>}
 

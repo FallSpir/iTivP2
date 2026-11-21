@@ -270,3 +270,110 @@ a:hover { text-decoration: underline; }
 [data-theme="dark"] .row-editing td { background: rgba(96,165,250,.08); }
 
 .theme-btn { font-size: .8rem; border: 1px solid var(--border); }
+
+/* ── Favorites badge in nav ───────────────────────────────── */
+.fav-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--primary); color: #fff; border-radius: 20px;
+  font-size: .68rem; font-weight: 700; min-width: 18px; height: 18px;
+  padding: 0 5px; margin-left: 5px; line-height: 1;
+}
+[data-theme="dark"] .fav-badge { color: #0f172a; }
+
+/* ── Fav button on metric card ────────────────────────────── */
+.metric-card { position: relative; }
+.fav-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: none; border: none; cursor: pointer;
+  font-size: 1.1rem; color: var(--text-s); padding: 2px 4px;
+  border-radius: 4px; line-height: 1; transition: color .15s, transform .1s;
+  z-index: 1;
+}
+.fav-btn:hover { color: #f59e0b; transform: scale(1.2); }
+.fav-btn.fav-active { color: #f59e0b; }
+
+/* ── Fav button on detail page ───────────────────────────── */
+.btn-fav-active {
+  background: #fef3c7; color: #b45309;
+  border: 1.5px solid #f59e0b;
+}
+.btn-fav-active:hover { background: #fde68a; }
+[data-theme="dark"] .btn-fav-active {
+  background: rgba(245,158,11,.15); color: #fbbf24;
+  border-color: #f59e0b;
+}
+
+/* ── Favorites page ───────────────────────────────────────── */
+.page-favorites { }
+.fav-card { display: flex; flex-direction: column; }
+.fav-card-body {
+  flex: 1; cursor: pointer; border-radius: calc(var(--radius) - 2px);
+  transition: background .1s;
+}
+.fav-card-body:hover { background: var(--bg); }
+.fav-remove-btn {
+  margin-top: 10px; border: none; background: none; cursor: pointer;
+  color: var(--error); font-size: .8rem; font-weight: 500;
+  padding: 4px 0; text-align: left; transition: opacity .15s;
+}
+.fav-remove-btn:hover { opacity: .75; }
+
+.fav-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; padding: 80px 20px; text-align: center;
+}
+.fav-empty-icon { font-size: 4rem; color: var(--border); }
+.fav-empty p { color: var(--text-m); font-size: .95rem; }
+
+/* ── About page demo description ────────────────────────── */
+.about-demo-desc { color: var(--text-m); margin-bottom: 16px; font-size: .92rem; line-height: 1.7; }
+
+/* ── Prop Drilling Demo ───────────────────────────────────── */
+.pd-demo {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 24px;
+}
+.pd-controls {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 20px; flex-wrap: wrap;
+}
+.pd-label { font-size: .88rem; color: var(--text-m); }
+
+.pd-columns {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+@media (max-width: 700px) { .pd-columns { grid-template-columns: 1fr; } }
+
+.pd-column { }
+.pd-col-title {
+  font-size: .88rem; font-weight: 700; padding: 6px 12px;
+  border-radius: 6px; margin-bottom: 10px; display: inline-block;
+}
+.pd-col-bad  { background: #fef2f2; color: var(--error); }
+.pd-col-good { background: #f0fdf4; color: var(--success); }
+[data-theme="dark"] .pd-col-bad  { background: rgba(248,113,113,.12); }
+[data-theme="dark"] .pd-col-good { background: rgba(74,222,128,.12); }
+
+.pd-node {
+  border-radius: 8px; padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.pd-node-pass     { background: #fef2f2; border: 1px solid #fecaca; }
+.pd-node-used     { background: #f0fdf4; border: 1px solid #bbf7d0; }
+.pd-node-ctx-root { background: #eff6ff; border: 1px solid #bfdbfe; }
+.pd-node-ctx      { background: var(--bg); border: 1px solid var(--border); }
+.pd-node-ctx-used { background: #f0fdf4; border: 1px solid #bbf7d0; }
+
+[data-theme="dark"] .pd-node-pass     { background: rgba(248,113,113,.08); border-color: rgba(248,113,113,.25); }
+[data-theme="dark"] .pd-node-used     { background: rgba(74,222,128,.08);  border-color: rgba(74,222,128,.25); }
+[data-theme="dark"] .pd-node-ctx-root { background: rgba(96,165,250,.08);  border-color: rgba(96,165,250,.25); }
+[data-theme="dark"] .pd-node-ctx      { background: rgba(255,255,255,.03); }
+[data-theme="dark"] .pd-node-ctx-used { background: rgba(74,222,128,.08);  border-color: rgba(74,222,128,.25); }
+
+.pd-comp   { font-weight: 700; font-size: .88rem; color: var(--text); }
+.pd-code   { font-family: 'Courier New', monospace; font-size: .78rem; color: var(--primary); background: rgba(37,99,235,.07); padding: 1px 5px; border-radius: 3px; }
+.pd-code-sm { font-size: .72rem; }
+.pd-unused { font-size: .78rem; color: var(--error); }
+.pd-skip   { font-size: .78rem; color: var(--success); }
+.pd-result { font-size: .82rem; font-weight: 600; color: var(--text); }
+.pd-arrow  { font-size: .78rem; color: var(--text-s); margin: 2px 0; }

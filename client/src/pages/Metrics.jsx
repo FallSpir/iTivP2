@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../utils/api';
 import { CATEGORIES } from '../utils/validate';
+import { useFavorites } from '../context/FavoritesContext';
 
 const TREND = (t) => t > 0 ? { icon: '↑', cls: 'trend-up' } : t < 0 ? { icon: '↓', cls: 'trend-down' } : { icon: '→', cls: 'trend-flat' };
 
@@ -10,6 +11,8 @@ export default function Metrics() {
   const [data,    setData]    = useState(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null);
+
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
 
   const category = searchParams.get('category') || '';
   const sort     = searchParams.get('sort')     || '';
@@ -41,6 +44,16 @@ export default function Metrics() {
 
   function toggleDir() {
     set('dir', dir === 'asc' ? 'desc' : 'asc');
+  }
+
+  function toggleFav(e, m) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isFavorite(m.id)) {
+      removeFavorite(m.id);
+    } else {
+      addFavorite({ id: m.id, name: m.name, value: m.value, unit: m.unit, category: m.category, trend: m.trend });
+    }
   }
 
   return (
@@ -79,7 +92,8 @@ export default function Metrics() {
           <div className="metrics-grid">
             {data.data.length === 0 && <p className="empty">Метрики не найдены.</p>}
             {data.data.map(m => {
-              const tr = TREND(m.trend);
+              const tr  = TREND(m.trend);
+              const fav = isFavorite(m.id);
               return (
                 <Link key={m.id} to={`/metrics/${m.id}`} className="metric-card">
                   <div className="mc-header">
@@ -88,6 +102,13 @@ export default function Metrics() {
                   </div>
                   <div className="mc-value">{m.value.toLocaleString('ru')} <span className="mc-unit">{m.unit}</span></div>
                   <div className="mc-cat">{m.category}</div>
+                  <button
+                    className={`fav-btn${fav ? ' fav-active' : ''}`}
+                    onClick={(e) => toggleFav(e, m)}
+                    title={fav ? 'Убрать из избранного' : 'В избранное'}
+                  >
+                    {fav ? '★' : '☆'}
+                  </button>
                 </Link>
               );
             })}

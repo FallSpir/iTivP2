@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../utils/api';
+import { useFavorites } from '../context/FavoritesContext';
 
 export default function MetricDetail() {
   const { id }              = useParams();
@@ -9,8 +10,9 @@ export default function MetricDetail() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null);
 
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+
   useEffect(() => {
-    // Guard: id должен быть числом
     if (!id || !/^\d+$/.test(id)) {
       navigate('/not-found', { replace: true });
       return;
@@ -36,15 +38,37 @@ export default function MetricDetail() {
   if (error)   return <div className="alert alert-error">{error}</div>;
   if (!metric) return null;
 
-  const trend = metric.trend;
+  const trend    = metric.trend;
   const trendCls = trend > 0 ? 'trend-up' : trend < 0 ? 'trend-down' : 'trend-flat';
-  const trendIcon = trend > 0 ? '↑' : trend < 0 ? '↓' : '→';
+  const trendIcon= trend > 0 ? '↑' : trend < 0 ? '↓' : '→';
+  const fav      = isFavorite(metric.id);
+
+  function toggleFav() {
+    if (fav) {
+      removeFavorite(metric.id);
+    } else {
+      addFavorite({
+        id:       metric.id,
+        name:     metric.name,
+        value:    metric.value,
+        unit:     metric.unit,
+        category: metric.category,
+        trend:    metric.trend,
+      });
+    }
+  }
 
   return (
     <div className="page-detail">
       <div className="detail-nav">
         <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)}>← Назад</button>
         <Link to="/metrics" className="btn btn-ghost btn-sm">Все метрики</Link>
+        <button
+          className={`btn btn-sm${fav ? ' btn-fav-active' : ' btn-outline'}`}
+          onClick={toggleFav}
+        >
+          {fav ? '★ В избранном' : '☆ В избранное'}
+        </button>
       </div>
 
       <div className="detail-card">
